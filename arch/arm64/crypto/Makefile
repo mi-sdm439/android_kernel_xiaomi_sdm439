@@ -18,7 +18,7 @@ obj-$(CONFIG_CRYPTO_GHASH_ARM64_CE) += ghash-ce.o
 ghash-ce-y := ghash-ce-glue.o ghash-ce-core.o
 
 obj-$(CONFIG_CRYPTO_AES_ARM64_CE) += aes-ce-cipher.o
-aes-ce-cipher-y := aes-ce-cipher-glue.o aes-ce-cipher-core.o
+aes-ce-cipher-y := aes-ce-core.o aes-ce-glue.o
 ifdef CONFIG_ARCH_SDM439
 CFLAGS_aes-ce-cipher-core.o += -mcpu=cortex-a53+crypto -Wa,-mcpu=cortex-a53+crypto -mtune=cortex-a53
 else
