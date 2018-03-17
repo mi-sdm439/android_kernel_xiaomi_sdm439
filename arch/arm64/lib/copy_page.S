@@ -29,11 +29,9 @@
  *	x1 - src
  */
 ENTRY(copy_page)
-alternative_if ARM64_HAS_NO_HW_PREFETCH
-	# Prefetch two cache lines ahead.
-	prfm    pldl1strm, [x1, #128]
-	prfm    pldl1strm, [x1, #256]
-alternative_else_nop_endif
+	prfm	pldl1strm, [x1, #128]
+	prfm	pldl1strm, [x1, #256]
+	prfm	pldl1strm, [x1, #384]
 
 	ldp	x2, x3, [x1]
 	ldp	x4, x5, [x1, #16]
@@ -49,9 +47,7 @@ alternative_else_nop_endif
 1:
 	subs	x18, x18, #128
 
-alternative_if ARM64_HAS_NO_HW_PREFETCH
-	prfm    pldl1strm, [x1, #384]
-alternative_else_nop_endif
+	prfm	pldl1strm, [x1, #384]
 
 	stnp	x2, x3, [x0]
 	ldp	x2, x3, [x1]
