@@ -761,7 +761,8 @@ endif
 
 # Fix build for GCC 4.7
 EXTRA_CFLAGS += $(call cc-option,-Wno-maybe-uninitialized) -Wno-unused-function -Wno-enum-conversion -Wno-array-bounds -Wno-pointer-bool-conversion -Wno-parentheses-equality -Wno-typedef-redefinition -Wno-empty-body -Wno-non-literal-null-conversion
-EXTRA_CFLAGS += -Wno-maybe-uninitialized -Wno-unused-function -Wno-unused-variable
+EXTRA_CFLAGS += -Wno-unused-function -Wno-unused-variable
+EXTRA_CFLAGS += $(call cc-disable-warning,maybe-uninitialized,) -Wno-unused-function -Wno-unused-variable
 
 ifeq ($(cc-name),clang)
 EXTRA_CFLAGS += $(call cc-disable-warning,enum-conversion,)
