@@ -6982,7 +6982,10 @@ static unsigned long cpu_estimated_capacity(int cpu, struct task_struct *p)
 	else
 		tutil = task_util(p);
 
-	estimated_capacity = cpu_util_cum(cpu, tutil);
+	if ((task_boost_policy(p) == SCHED_BOOST_ON_BIG ||
+			schedtune_task_boost(p) > 0) &&
+			is_min_capacity_cpu(cpu))
+		return false;
 
 	return estimated_capacity;
 }
