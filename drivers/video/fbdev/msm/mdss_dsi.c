@@ -1745,8 +1745,7 @@ static int mdss_dsi_unblank(struct mdss_panel_data *pdata)
 		}
 	}
 
-	if ((pdata->panel_info.type == MIPI_CMD_PANEL) &&
-		mipi->vsync_enable && mipi->hw_vsync_mode) {
+	if (mipi->vsync_enable && mipi->hw_vsync_mode) {
 		mdss_dsi_set_tear_on(ctrl_pdata);
 	}
 
@@ -1815,8 +1814,7 @@ static int mdss_dsi_blank(struct mdss_panel_data *pdata, int power_state)
 		}
 	}
 
-	if ((pdata->panel_info.type == MIPI_CMD_PANEL) &&
-		mipi->vsync_enable && mipi->hw_vsync_mode) {
+	if (mipi->vsync_enable && mipi->hw_vsync_mode) {
 		mdss_dsi_set_tear_off(ctrl_pdata);
 	}
 
@@ -3534,20 +3532,18 @@ static int mdss_dsi_ctrl_probe(struct platform_device *pdev)
 
 	pdata = &ctrl_pdata->panel_data;
 	init_completion(&pdata->te_done);
-	if (pdata->panel_info.type == MIPI_CMD_PANEL) {
-		if (!te_irq_registered) {
-			rc = devm_request_irq(&pdev->dev,
-				gpio_to_irq(pdata->panel_te_gpio),
-				test_hw_vsync_handler, IRQF_TRIGGER_FALLING,
-				"VSYNC_GPIO", &ctrl_pdata->panel_data);
-			if (rc) {
-				pr_err("%s: TE request_irq failed\n", __func__);
-				goto error_shadow_clk_deinit;
-			}
-			te_irq_registered = 1;
-			disable_irq_nosync(gpio_to_irq(pdata->panel_te_gpio));
-		}
-	}
+    if (!te_irq_registered) {
+        rc = devm_request_irq(&pdev->dev,
+            gpio_to_irq(pdata->panel_te_gpio),
+            test_hw_vsync_handler, IRQF_TRIGGER_FALLING,
+            "VSYNC_GPIO", &ctrl_pdata->panel_data);
+        if (rc) {
+            pr_err("%s: TE request_irq failed\n", __func__);
+            goto error_shadow_clk_deinit;
+        }
+        te_irq_registered = 1;
+        disable_irq_nosync(gpio_to_irq(pdata->panel_te_gpio));
+    }
 
 	rc = mdss_dsi_get_bridge_chip_params(pinfo, ctrl_pdata, pdev);
 	if (rc) {
