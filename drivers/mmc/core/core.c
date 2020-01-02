@@ -3435,11 +3435,10 @@ int mmc_resume_bus(struct mmc_host *host)
 		card_present = host->ops->get_cd(host);
 		if (!card_present) {
 			pr_err("%s: Card removed - card_present:%d\n",
-			       mmc_hostname(host), card_present);
+			mmc_hostname(host), card_present);
 			mmc_card_set_removed(host->card);
 		}
 	}
-
 	if (host->bus_ops && !host->bus_dead && host->card && card_present) {
 		mmc_power_up(host, host->card->ocr);
 		BUG_ON(!host->bus_ops->resume);
