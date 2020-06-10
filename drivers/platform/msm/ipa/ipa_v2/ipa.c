@@ -3499,10 +3499,6 @@ void ipa_inc_acquire_wakelock(enum ipa_wakelock_ref_client ref_client)
 		IPAERR("client enum %d mask already set. ref cnt = %d\n",
 		ref_client, ipa_ctx->wakelock_ref_cnt.cnt);
 	ipa_ctx->wakelock_ref_cnt.cnt |= (1 << ref_client);
-	if (ipa_ctx->wakelock_ref_cnt.cnt &&
-		!ipa_ctx->wakelock_ref_cnt.wakelock_acquired) {
-		ipa_ctx->wakelock_ref_cnt.wakelock_acquired = true;
-	}
 	IPADBG_LOW("active wakelock ref cnt = %d client enum %d\n",
 		ipa_ctx->wakelock_ref_cnt.cnt, ref_client);
 	spin_unlock_irqrestore(&ipa_ctx->wakelock_ref_cnt.spinlock, flags);
@@ -3526,10 +3522,6 @@ void ipa_dec_release_wakelock(enum ipa_wakelock_ref_client ref_client)
 	ipa_ctx->wakelock_ref_cnt.cnt &= ~(1 << ref_client);
 	IPADBG_LOW("active wakelock ref cnt = %d client enum %d\n",
 		ipa_ctx->wakelock_ref_cnt.cnt, ref_client);
-	if (ipa_ctx->wakelock_ref_cnt.cnt == 0 &&
-		ipa_ctx->wakelock_ref_cnt.wakelock_acquired) {
-		ipa_ctx->wakelock_ref_cnt.wakelock_acquired = false;
-	}
 	spin_unlock_irqrestore(&ipa_ctx->wakelock_ref_cnt.spinlock, flags);
 }
 
