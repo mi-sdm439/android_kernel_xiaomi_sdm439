@@ -10058,7 +10058,7 @@ static struct rq *find_busiest_queue(struct lb_env *env,
 		     task_util(rq->curr) < sched_small_task_threshold)))
 			continue;
 
-		wl = weighted_cpuload(i);
+		wl = cfs_rq_load_avg(&rq->cfs);
 
 		/*
 		 * When comparing with imbalance, use weighted_cpuload()
