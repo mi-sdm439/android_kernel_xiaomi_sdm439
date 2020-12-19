@@ -133,7 +133,7 @@ EXPORT_SYMBOL_GPL(have_governor_per_policy);
 
 bool cpufreq_driver_is_slow(void)
 {
-	return !(cpufreq_driver->flags & CPUFREQ_DRIVER_FAST);
+	return !(cpufreq_driver->flags & CPUFREQ_NO_AUTO_DYNAMIC_SWITCHING);
 }
 EXPORT_SYMBOL_GPL(cpufreq_driver_is_slow);
 
