@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2019, Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -55,6 +55,7 @@ enum {
 };
 
 enum {
+	LSM_INVALID_SESSION_ID = 0,
 	LSM_MIN_SESSION_ID = 1,
 	LSM_MAX_SESSION_ID = 8,
 	LSM_CONTROL_SESSION = 0x0F,
@@ -140,7 +141,7 @@ static int q6lsm_get_session_id_from_lsm_client(struct lsm_client *client)
 	}
 	pr_err("%s: cannot find matching lsm client. client = %pa\n",
 		__func__, client);
-	return 0;
+	return LSM_INVALID_SESSION_ID;
 }
 
 static bool q6lsm_is_valid_lsm_client(struct lsm_client *client)
@@ -194,7 +195,8 @@ static int q6lsm_callback(struct apr_client_data *data, void *priv)
 		struct lsm_cmd_read_done read_done;
 
 		token = data->token;
-		if (data->payload_size > sizeof(read_done)) {
+		if (data->payload_size > sizeof(read_done) ||
+				data->payload_size < 6 * sizeof(payload[0])) {
 			pr_err("%s: read done error payload size %d expected size %zd\n",
 				__func__, data->payload_size,
 				sizeof(read_done));
@@ -212,6 +214,7 @@ static int q6lsm_callback(struct apr_client_data *data, void *priv)
 		if (client->cb)
 			client->cb(data->opcode, data->token,
 					(void *)&read_done,
+					sizeof(read_done),
 					client->priv);
 		return 0;
 	} else if (data->opcode == APR_BASIC_RSP_RESULT) {
@@ -237,6 +240,11 @@ static int q6lsm_callback(struct apr_client_data *data, void *priv)
 					__func__, token, client->session);
 				return -EINVAL;
 			}
+			if (data->payload_size < 2 * sizeof(payload[0])) {
+				pr_err("%s: payload has invalid size[%d]\n",
+					__func__, data->payload_size);
+				return -EINVAL;
+			}
 			client->cmd_err_code = payload[1];
 			if (client->cmd_err_code)
 				pr_err("%s: cmd 0x%x failed status %d\n",
@@ -257,7 +265,7 @@ static int q6lsm_callback(struct apr_client_data *data, void *priv)
 
 	if (client->cb)
 		client->cb(data->opcode, data->token, data->payload,
-			   client->priv);
+				data->payload_size, client->priv);
 
 	return 0;
 }
@@ -286,9 +294,9 @@ static void q6lsm_session_free(struct lsm_client *client)
 
 	pr_debug("%s: Freeing session ID %d\n", __func__, client->session);
 	spin_lock_irqsave(&lsm_session_lock, flags);
-	lsm_session[client->session] = 0;
+	lsm_session[client->session] = NULL;
 	spin_unlock_irqrestore(&lsm_session_lock, flags);
-	client->session = 0;
+	client->session = LSM_INVALID_SESSION_ID;
 }
 
 static void *q6lsm_mmap_apr_reg(void)
@@ -1491,6 +1499,8 @@ static int q6lsm_mmapcallback(struct apr_client_data *data, void *priv)
 			 "proc 0x%x SID 0x%x\n", __func__, data->opcode,
 			 data->reset_event, data->reset_proc, sid);
 
+		if (sid < LSM_MIN_SESSION_ID || sid > LSM_MAX_SESSION_ID)
+			pr_err("%s: Invalid session %d\n", __func__, sid);
 		apr_reset(lsm_common.apr);
 		lsm_common.apr = NULL;
 		atomic_set(&lsm_common.apr_users, 0);
@@ -1556,7 +1566,8 @@ static int q6lsm_mmapcallback(struct apr_client_data *data, void *priv)
 	}
 	if (client->cb)
 		client->cb(data->opcode, data->token,
-			   data->payload, client->priv);
+			   data->payload, data->payload_size,
+			   client->priv);
 	return 0;
 }
 
