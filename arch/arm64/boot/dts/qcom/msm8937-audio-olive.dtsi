@@ -150,12 +150,6 @@
 		status = "okay";
 		#address-cells = <1>;
 		#size-cells = <0>;
-		aw87329@58{
-			status = "okay";
-			compatible = "awinic,aw87329_pa";
-			reg = <0x58>;
-			reset-gpio = <&tlmm 125 0x01>;
-		};
 		aw87519@58{
 			status = "okay";
 			compatible = "awinic,aw87519";
@@ -172,7 +166,7 @@
 				<&wsa881x_analog_reset_gpio>;
 		};
 		wsa881x_i2c_45: wsa881x-i2c-codec@45 {
-			status = "okay";
+			status = "disabled";
 			compatible = "qcom,wsa881x-i2c-codec";
 			reg = <0x45>;
 		};
