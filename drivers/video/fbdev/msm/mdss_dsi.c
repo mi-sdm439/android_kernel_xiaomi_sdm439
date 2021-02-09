@@ -2940,7 +2940,7 @@ u32 white_point_num_g;
 u32 white_point_num_b;
 #endif
 
-#if defined(PROJECT_OLIVE) || defined(PROJECT_OLIVELITE) || defined(PROJECT_OLIVEWOOD)
+#if defined(CONFIG_PROJECT_OLIVES)
 char tp_lockdown_info[40] = {0};
 #endif
 
@@ -2957,7 +2957,7 @@ static struct device_node *mdss_dsi_find_panel_of_node(
 	char *wponit_str;
 #endif
 
-#if defined(PROJECT_OLIVE) || defined(PROJECT_OLIVELITE) || defined(PROJECT_OLIVEWOOD)
+#if defined(CONFIG_PROJECT_OLIVES)
 	char *tplock_str;
 #endif
 
@@ -2985,7 +2985,7 @@ static struct device_node *mdss_dsi_find_panel_of_node(
 		}
 #endif
 
-#if defined(PROJECT_OLIVE) || defined(PROJECT_OLIVELITE) || defined(PROJECT_OLIVEWOOD)
+#if defined(CONFIG_PROJECT_OLIVES)
 		tplock_str = strnstr(panel_cfg, ":tplock=", len);
 		if (!tplock_str) {
 			pr_err("%s:[tp lockdown info] tp lockdown info is not present in %s\n",
