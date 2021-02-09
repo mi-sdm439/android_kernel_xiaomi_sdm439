@@ -1,4 +1,4 @@
-ifeq ($(strip $(TARGET_PRODUCT)) , pine)
+ifeq ($(CONFIG_PROJECT_PINE), y)
     obj-y += stub/ audio/
     header-y += stub/include/uapi/ audio/include/uapi/
 else
