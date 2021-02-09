@@ -630,7 +630,7 @@ int ktd_hbm_set(enum backlight_hbm_mode hbm_mode)
 	return 0;
 }
 
-#if defined(CONFIG_ROJECT_OLIVES)
+#if defined(CONFIG_PROJECT_OLIVES)
 #define LOWEST_BRIGHTNESS          8
 #endif
 
