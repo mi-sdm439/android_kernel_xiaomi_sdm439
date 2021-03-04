@@ -51,7 +51,7 @@
 	|| typec_mode == POWER_SUPPLY_TYPEC_SOURCE_HIGH)	\
 	&& !chg->typec_legacy)
 
-#ifdef PROJECT_PINE
+#ifdef CONFIG_PROJECT_PINE
 int quiet_ther_ibus[] = {2500000, 2000000, 2000000, 1000000,
 					1000000, 500000};
 
@@ -1848,7 +1848,7 @@ int smblib_set_prop_system_temp_level(struct smb_charger *chg,
 	if (chg->system_temp_level == 0)
 		return vote(chg->fcc_votable, THERMAL_DAEMON_VOTER, false, 0);
 
-#ifdef PROJECT_PINE
+#ifdef CONFIG_PROJECT_PINE
 	if (chg->is_adapter_idn) {
 		vote(chg->usb_icl_votable, THERMAL_DAEMON_VOTER, true,
 				quiet_ther_ibus_idn[chg->system_temp_level]);
@@ -3376,7 +3376,7 @@ irqreturn_t usb_plugin_irq_handler(int irq, void *data)
 		smblib_usb_plugin_hard_reset_locked(chg);
 	else
 		smblib_usb_plugin_locked(chg);
-#ifdef PROJECT_PINE
+#ifdef CONFIG_PROJECT_PINE
 	schedule_delayed_work(&chg->adapter_limit_work, msecs_to_jiffies(SMBCHG_UPDATE_MS*10));
 #endif
 	return IRQ_HANDLED;
@@ -4633,7 +4633,7 @@ static void smbchg_cool_limit_work(struct work_struct *work)
 
 	smblib_get_prop_from_bms(chg, POWER_SUPPLY_PROP_TEMP, &temp);
 
-#ifdef PROJECT_PINE
+#ifdef CONFIG_PROJECT_PINE
 	if (temp.intval > COOL_0_TEMPERATURE
 		&& temp.intval <= COOL_5_TEMPERATURE && icl != COOL_ICL_400MA) {
 		mutex_lock(&chg->cool_current);
@@ -4721,7 +4721,7 @@ static void smbchg_cool_limit_work(struct work_struct *work)
 	schedule_delayed_work(&chg->cool_limit_work, msecs_to_jiffies(SMBCHG_UPDATE_MS));
 }
 
-#ifdef PROJECT_PINE
+#ifdef CONFIG_PROJECT_PINE
 static void smblib_adapter_limit_work(struct work_struct *work)
 {
 	int settled_ua = 0;
@@ -4857,7 +4857,7 @@ int smblib_init(struct smb_charger *chg)
 	INIT_DELAYED_WORK(&chg->bb_removal_work, smblib_bb_removal_work);
 	INIT_DELAYED_WORK(&chg->usbov_dbc_work, smblib_usbov_dbc_work);
 	INIT_DELAYED_WORK(&chg->arb_monitor_work, smblib_arb_monitor_work);
-#ifdef PROJECT_PINE
+#ifdef CONFIG_PROJECT_PINE
 	INIT_DELAYED_WORK(&chg->adapter_limit_work, smblib_adapter_limit_work);
 #endif
 #ifdef CONFIG_PROJECT_OLIVES
@@ -4974,7 +4974,7 @@ int smblib_deinit(struct smb_charger *chg)
 		cancel_delayed_work_sync(&chg->uusb_otg_work);
 		cancel_delayed_work_sync(&chg->bb_removal_work);
 		cancel_delayed_work_sync(&chg->usbov_dbc_work);
-#ifdef PROJECT_PINE
+#ifdef CONFIG_PROJECT_PINE
 		cancel_delayed_work_sync(&chg->adapter_limit_work);
 #endif
 #ifdef CONFIG_PROJECT_OLIVES
