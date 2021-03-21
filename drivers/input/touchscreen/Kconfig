@@ -1348,7 +1348,7 @@ source "drivers/input/touchscreen/ft5446/Kconfig"
 
 config TOUCHSCREEN_GOODIX_GT1X
 	bool "GOODIX GT1X Touchscreen"
-	default y
+	default n
 	help
 	  Say Y here if you have GOODIX GT1X Touchscreen.
 
