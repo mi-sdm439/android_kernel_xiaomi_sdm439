@@ -3502,20 +3502,21 @@ static int msm_otg_debugfs_init(struct msm_otg *motg)
 
 	msm_otg_dbg_root = debugfs_create_dir("msm_otg", NULL);
 
-	if (!msm_otg_dbg_root || IS_ERR(msm_otg_dbg_root))
+	if (!msm_otg_dbg_root || IS_ERR(msm_otg_dbg_root)) {
 		return -ENODEV;
+	}
 
 //	if ((pdata->mode == USB_OTG || pdata->mode == USB_PERIPHERAL) &&
 //	pdata->otg_control == OTG_USER_CONTROL) {
 
-		msm_otg_dentry = debugfs_create_file("mode", 0644,
-			msm_otg_dbg_root, motg, &msm_otg_mode_fops);
+	msm_otg_dentry = debugfs_create_file("mode", 0644,
+		msm_otg_dbg_root, motg, &msm_otg_mode_fops);
 
-		if (!msm_otg_dentry) {
-			debugfs_remove(msm_otg_dbg_root);
-			msm_otg_dbg_root = NULL;
-			return -ENODEV;
-		}
+	if (!msm_otg_dentry) {
+		debugfs_remove(msm_otg_dbg_root);
+		msm_otg_dbg_root = NULL;
+		return -ENODEV;
+	}
 //	}
 
 	msm_otg_dentry = debugfs_create_file("bus_voting", 0644,
