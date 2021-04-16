@@ -16,6 +16,7 @@
 
 #include "msm_kms.h"
 #include "dp_panel.h"
+#include <drm/drm_edid.h>
 
 #define DP_PANEL_DEFAULT_BPP 24
 #define DP_MAX_DS_PORT_COUNT 1
@@ -235,8 +236,24 @@ static int dp_panel_set_default_link_params(struct dp_panel *dp_panel)
 
 	return 0;
 }
+static int dp_panel_validate_edid(struct edid *edid, size_t edid_size)
+{
+	if (!edid || (edid_size < EDID_LENGTH))
+		return false;
 
-static int dp_panel_set_edid(struct dp_panel *dp_panel, u8 *edid)
+	if (EDID_LENGTH * (edid->extensions + 1) > edid_size) {
+		pr_err("edid size does not match allocated.\n");
+		return false;
+	}
+	if (!drm_edid_is_valid(edid)) {
+		pr_err("invalid edid.\n");
+		return false;
+	}
+	return true;
+}
+
+static int dp_panel_set_edid(struct dp_panel *dp_panel, u8 *edid,
+		size_t edid_size)
 {
 	struct dp_panel_private *panel;
 
@@ -247,7 +264,7 @@ static int dp_panel_set_edid(struct dp_panel *dp_panel, u8 *edid)
 
 	panel = container_of(dp_panel, struct dp_panel_private, dp_panel);
 
-	if (edid) {
+	if (edid && dp_panel_validate_edid((struct edid *)edid, edid_size)) {
 		dp_panel->edid_ctrl->edid = (struct edid *)edid;
 		panel->custom_edid = true;
 	} else {
@@ -458,6 +475,7 @@ static int dp_panel_get_modes(struct dp_panel *dp_panel,
 	struct drm_connector *connector, struct dp_display_mode *mode)
 {
 	struct dp_panel_private *panel;
+	int rc = 0;
 
 	if (!dp_panel) {
 		pr_err("invalid input\n");
@@ -470,12 +488,18 @@ static int dp_panel_get_modes(struct dp_panel *dp_panel,
 		dp_panel_set_test_mode(panel, mode);
 		return 1;
 	} else if (dp_panel->edid_ctrl->edid) {
-		return _sde_edid_update_modes(connector, dp_panel->edid_ctrl);
+		rc = _sde_edid_update_modes(connector, dp_panel->edid_ctrl);
 	} else { /* fail-safe mode */
 		memcpy(&mode->timing, &fail_safe,
 			sizeof(fail_safe));
 		return 1;
 	}
+
+	if (rc)
+		drm_dp_cec_set_edid(panel->aux->drm_aux,
+				dp_panel->edid_ctrl->edid);
+
+	return rc;
 }
 
 static void dp_panel_handle_sink_request(struct dp_panel *dp_panel)
@@ -762,6 +786,7 @@ static int dp_panel_deinit_panel_info(struct dp_panel *dp_panel)
 	panel = container_of(dp_panel, struct dp_panel_private, dp_panel);
 	hdr = &panel->catalog->hdr_data;
 
+	drm_dp_cec_unset_edid(panel->aux->drm_aux);
 	if (!panel->custom_edid)
 		sde_free_edid((void **)&dp_panel->edid_ctrl);
 

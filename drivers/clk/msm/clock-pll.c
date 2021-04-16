@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2018, 2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -461,9 +461,8 @@ static int variable_rate_pll_clk_enable(struct clk *c)
 			 * breaking too early if there is a "transient"
 			 * lock.
 			 */
-			if ((readl_relaxed(PLL_STATUS_REG(pll)) & lockmask)) {
+			if ((readl_relaxed(PLL_STATUS_REG(pll)) & lockmask))
 				break;
-			}
 			early_lock = true;
 		}
 		udelay(1);
