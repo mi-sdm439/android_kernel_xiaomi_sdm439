@@ -302,11 +302,12 @@ static int reg_ion_mem(void)
 	rc = msm_audio_ion_alloc("SRS_TRUMEDIA", &ion_client, &ion_handle,
 				 ION_MEM_SIZE, &po.paddr, (size_t *)&po.size,
 				 &po.kvaddr);
-	if (rc != 0)
+	if (rc != 0) {
 		pr_err("%s: failed to allocate memory.\n", __func__);
 		pr_debug("%s: exited ion_client = %pK, ion_handle = %pK, phys_addr = %lu, length = %d, vaddr = %pK, rc = 0x%x\n",
 			__func__, ion_client, ion_handle, (long)po.paddr,
 			(unsigned int)po.size, po.kvaddr, rc);
+	}
 	return rc;
 }
 

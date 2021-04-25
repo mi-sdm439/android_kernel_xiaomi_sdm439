@@ -650,9 +650,10 @@ static int __configure_pipe_params(struct msm_fb_data_type *mfd,
 			!pipe->scaler.enable) {
 		pipe->overfetch_disable = OVERFETCH_DISABLE_BOTTOM;
 
-	if (pipe->dst.x >= left_lm_w)
-		pipe->overfetch_disable |= OVERFETCH_DISABLE_RIGHT;
-		pr_debug("overfetch flags=%x\n", pipe->overfetch_disable);
+		if (pipe->dst.x >= left_lm_w) {
+			pipe->overfetch_disable |= OVERFETCH_DISABLE_RIGHT;
+			pr_debug("overfetch flags=%x\n", pipe->overfetch_disable);
+		}
 	} else {
 		pipe->overfetch_disable = 0;
 	}
