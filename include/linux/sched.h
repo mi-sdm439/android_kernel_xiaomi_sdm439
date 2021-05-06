@@ -3437,6 +3437,10 @@ static inline void task_unlock(struct task_struct *p)
 
 extern struct sighand_struct *__lock_task_sighand(struct task_struct *tsk,
 							unsigned long *flags);
+void sched_migrate_to_cpumask_start(struct cpumask *old_mask,
+				    const struct cpumask *dest);
+void sched_migrate_to_cpumask_end(const struct cpumask *old_mask,
+				  const struct cpumask *dest);
 
 static inline struct sighand_struct *lock_task_sighand(struct task_struct *tsk,
 						       unsigned long *flags)
