@@ -1,3 +1,7 @@
+ifeq ($(cc-name),clang)
+ccflags-y += $(call cc-option, -Os)
+endif
+
 obj-$(CONFIG_MSM_VIDC_3X_V4L2) := 	msm_v4l2_vidc.o \
 				msm_vidc_common.o \
 				msm_vidc.o \
