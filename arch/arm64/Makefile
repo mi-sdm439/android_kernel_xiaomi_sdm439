@@ -9,7 +9,7 @@
 # for more details.
 #
 # Copyright (C) 1995-2001 by Russell King
-CROSS_COMPILE_ARM32=arm-linux-androideabi-
+
 LDFLAGS_vmlinux	:=--no-undefined -X
 CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)
 GZFLAGS		:=-9
