@@ -44,7 +44,7 @@ void signalfd_cleanup(struct sighand_struct *sighand)
 		return;
 
 	/* wait_queue_t->func(POLLFREE) should do remove_wait_queue() */
-	wake_up_poll(wqh, POLLHUP | POLLFREE);
+	wake_up_pollfree(&sighand->signalfd_wqh);
 }
 
 struct signalfd_ctx {
