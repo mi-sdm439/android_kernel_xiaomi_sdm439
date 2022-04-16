@@ -1,0 +1,26 @@
+name: mi439 Kernel Compiler
+
+on: 
+  push:
+    branches:
+      - a12/main
+
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container: 
+      image: jprimero15/archlinux-docker:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Building mi439 Kernel
+      env:
+        TG_TOKEN: ${{ secrets.TG_TOKEN }}
+        TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+      run: |
+        wget https://raw.githubusercontent.com/Jprimero15/mi439_kernel_builder/master/builder.sh
+        bash builder.sh
