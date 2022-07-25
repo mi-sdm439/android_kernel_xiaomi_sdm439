@@ -11,9 +11,14 @@
 #include <linux/ratelimit.h>
 #include <linux/nls.h>
 
-#define EXFAT_VERSION		"5.14.1"
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0)
+#include <linux/magic.h>
+#else
 #define EXFAT_SUPER_MAGIC       0x2011BAB0UL
+#endif
+
+#define EXFAT_VERSION		"5.19.1"
+
 #define EXFAT_ROOT_INO		1
 
 #define EXFAT_CLUSTERS_UNTRACKED (~0u)
@@ -213,7 +218,9 @@ struct exfat_mount_options {
 	/* on error: continue, panic, remount-ro */
 	enum exfat_error_mode errors;
 	unsigned utf8:1, /* Use of UTF-8 character set */
-		 discard:1; /* Issue discard requests on deletions */
+		 sys_tz:1, /* Use local timezone */
+		 discard:1, /* Issue discard requests on deletions */
+		 keep_last_dots:1; /* Keep trailing periods in paths */
 	int time_offset; /* Offset of timestamps from UTC (in minutes) */
 };
 
@@ -394,6 +401,12 @@ static inline int exfat_sector_to_cluster(struct exfat_sb_info *sbi,
 		EXFAT_RESERVED_CLUSTERS;
 }
 
+static inline bool is_valid_cluster(struct exfat_sb_info *sbi,
+		unsigned int clus)
+{
+	return clus >= EXFAT_FIRST_CLUSTER && clus < sbi->num_clusters;
+}
+
 /* super.c */
 int exfat_set_volume_dirty(struct super_block *sb);
 int exfat_clear_volume_dirty(struct super_block *sb);
@@ -502,6 +515,7 @@ struct inode *exfat_build_inode(struct super_block *sb,
 void exfat_hash_inode(struct inode *inode, loff_t i_pos);
 void exfat_unhash_inode(struct inode *inode);
 struct inode *exfat_iget(struct super_block *sb, loff_t i_pos);
+int __exfat_write_inode(struct inode *inode, int sync);
 int exfat_write_inode(struct inode *inode, struct writeback_control *wbc);
 void exfat_evict_inode(struct inode *inode);
 int exfat_block_truncate_page(struct inode *inode, loff_t from);
